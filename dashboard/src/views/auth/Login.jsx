@@ -1,7 +1,17 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState,useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link ,useNavigate} from 'react-router-dom';
+import { messageClear,seller_login } from '../../store/Reducers/authReducer';
+import { PropagateLoader } from 'react-spinners';
+
+import toast  from 'react-hot-toast';
+import { overrideStyle } from '../../utils/utils';
 
 const Login  =() =>{
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const {loader,errorMessage,successMessage} = useSelector(state=>state.auth);   
+
     const [state, setState] = useState({
         email: '',
         password: ''
@@ -17,8 +27,20 @@ const Login  =() =>{
     const submit = (e) => {
         e.preventDefault();
         console.log(state);
-
+        dispatch(seller_login(state))
     }
+    useEffect(()=>{
+        if(errorMessage){
+            toast.error(errorMessage);
+            dispatch(messageClear())
+        }
+        if(successMessage){
+            toast.success(successMessage);
+            dispatch(messageClear())
+            navigate('/')
+        }
+
+    },[errorMessage,successMessage])
     return(
 
         <div className='min-w-screen min-h-screen bg-[#cdcae9] flex justify-center items-center'>
@@ -40,8 +62,11 @@ const Login  =() =>{
                             type='password' name='password' placeholder='Password' id='password' required
                         />
                     </div>
-                   
-                    <button className='bg-slate-800 w-full hover:shadow-blue-300 hover:Shadow-lg text-white rounded-md px-7 py-2 mb-3'>Sign In </button>
+                    <button disabled={loader ? true :false} className='bg-slate-800 w-full hover:shadow-blue-300 hover:Shadow-lg text-white rounded-md px-7 py-2 mb-3'>
+                    {
+                        loader ? <PropagateLoader  color='white'   cssOverride={overrideStyle}/> :'Sign In '
+                    }</button>
+                <button className='b'> </button>
                   <div className='flex items-center mb-3 gap-3 justify-center'><p>Don't  Have An Account ? <Link className='font-bold' to='/register'>Sign Up</Link></p> </div>
                
                      </form>

@@ -11,42 +11,41 @@ const SellerDetails = lazy(()=>import('../../views/admin/SellerDetails'));
 const ChatSeller = lazy(()=>import('../../views/admin/SellerChat'));
 const OrderDetails = lazy(()=>import('../../views/admin/OrderDetails'));
 
-export const adminRoutes =[
-
+export const adminRoutes = [
     {
-        path:'admin/dashboard',
-        element:<AdminDashboard/>,
-        ability:'admin'
+        path: 'admin/dashboard',
+        element : <AdminDashboard/>,
+        role : 'admin'
     },
     {
-        path:'admin/dashboard/orders',
-        element:<Orders/>,
-        ability:'admin'
+        path: 'admin/dashboard/orders',
+        element : <Orders/> ,
+        role : 'admin'
     },
     {
-        path:'admin/dashboard/category',
-        element:<Category/>,
-        ability:'admin'
+        path: 'admin/dashboard/category',
+        element : <Category/> ,
+        role : 'admin'
     },
     {
-        path:'admin/dashboard/sellers',
-        element:<Sellers/>,
-        ability:'admin'
+        path: 'admin/dashboard/sellers',
+        element : <Sellers/> ,
+        role : 'admin'
     },
     {
-        path:'admin/dashboard/payment-request',
-        element:<PaymentRequest/>,
-        ability:'admin'
+        path: 'admin/dashboard/payment-request',
+        element : <PaymentRequest/> ,
+        role : 'admin'
     },
     {
-        path:'admin/dashboard/deactive-sellers',
-        element:<DeactiveSellers/>,
-        ability:'admin'
+        path: 'admin/dashboard/deactive-sellers',
+        element : <DeactiveSellers/> ,
+        role : 'admin'
     },
     {
-        path:'admin/dashboard/sellers-request',
-        element:<SellerRequest/>,
-        ability:'admin'
+        path: 'admin/dashboard/sellers-request',
+        element : <SellerRequest/> ,
+        role : 'admin'
     },
     {
         path: 'admin/dashboard/seller/details/:sellerId',
@@ -54,7 +53,7 @@ export const adminRoutes =[
         role : 'admin'
     },
     {
-        path: 'admin/dashboard/chat-seller',
+        path: 'admin/dashboard/chat-sellers',
         element : <ChatSeller/> ,
         role : 'admin'
     },
@@ -62,9 +61,6 @@ export const adminRoutes =[
         path: 'admin/dashboard/order/details/:orderId',
         element : <OrderDetails/> ,
         role : 'admin'
-    },
-    
-
-    
+    }
 ]
 export default adminRoutes;
