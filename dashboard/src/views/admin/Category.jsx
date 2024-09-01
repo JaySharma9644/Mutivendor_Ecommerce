@@ -1,24 +1,24 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../Pagination';
 import { FaE } from 'react-icons/fa6';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { FaImage } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
-import { categoryAdd ,messageClear} from '../../store/Reducers/categoryReducer';
+import { categoryAdd, messageClear,get_category } from '../../store/Reducers/categoryReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import { PropagateLoader } from 'react-spinners';
 import { overrideStyle } from '../../utils/utils';
-import toast  from 'react-hot-toast';
-
+import toast from 'react-hot-toast';
+import { Search } from '../components/Search';
 const Category = () => {
 
     const dispatch = useDispatch()
-    const {loader,successMessage,errorMessage} = useSelector(state=> state.category)
+    const { loader, successMessage, errorMessage,categories,totalCategory } = useSelector(state => state.category)
     const [currentPage, setCurrentPage] = useState(1)
     const [searchValue, setSearchValue] = useState('')
     const [parPage, setParPage] = useState(5)
-    const [show, setShow] =  useState(false)
+    const [show, setShow] = useState(false)
     const [imageShow, setImage] = useState('')
     const [state, setState] = useState({
         name: '',
@@ -27,7 +27,7 @@ const Category = () => {
 
 
     const imageHandle = (e) => {
-        let files = e.target.files 
+        let files = e.target.files
         if (files.length > 0) {
             setImage(URL.createObjectURL(files[0]))
             setState({
@@ -46,11 +46,11 @@ const Category = () => {
     useEffect(() => {
         if (successMessage) {
             toast.success(successMessage)
-            dispatch(messageClear()) 
+            dispatch(messageClear())
             setState({
                 name: '',
                 image: ''
-            }) 
+            })
             setImage('')
 
         }
@@ -58,10 +58,17 @@ const Category = () => {
             toast.error(errorMessage)
             dispatch(messageClear())
         }
-    },[ successMessage, errorMessage])
-   
+    }, [successMessage, errorMessage])
 
-  
+    useEffect(() => {
+        const obj = {
+            parPage: parseInt(parPage),
+            page: parseInt(currentPage),
+            searchValue
+        }
+        dispatch(get_category(obj));
+    }, [currentPage, parPage, searchValue])
+
     return (
         <div className='px-2 lg:px-7 pt-5'>
 
@@ -78,14 +85,9 @@ const Category = () => {
                 <div className='w-full lg:w-7/12'>
                     <div className='w-full p-4 bg-[#6a5fdf] rounded-md'>
 
-                        <div className='flex justify-between items-center'>
-                            <select onChange={(e) => setParPage(parseInt(e.target.value))} className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]'>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                                <option value="20">20</option>
-                            </select>
-                            <input className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' type="text" placeholder='search' />
-                        </div>
+
+                        <Search setParPage={setParPage} setSearchValue={setSearchValue} searchValue={searchValue} />
+
 
                         <div className='relative overflow-x-auto'>
                             <table className='w-full text-sm text-left text-[#d0d2d6]'>
@@ -100,12 +102,12 @@ const Category = () => {
 
                                 <tbody>
                                     {
-                                        [1, 2, 3, 4, 5].map((d, i) => <tr key={i}>
-                                            <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{d}</td>
+                                        categories?.map((d, i) => <tr key={i}>
+                                            <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{i+1}</td>
                                             <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
-                                                <img className='w-[45px] h-[45px]' src={`http://localhost:3000/images/category/${d}.jpg`} alt="" />
+                                                <img className='w-[45px] h-[45px]' src={d.image} alt="" />
                                             </td>
-                                            <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>Tshirt</td>
+                                            <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{d.name}</td>
 
                                             <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
                                                 <div className='flex justify-start items-center gap-4'>
@@ -169,12 +171,12 @@ const Category = () => {
                                     </label>
                                     <input onChange={imageHandle} className='hidden' type="file" name="image" id="image" />
                                     <div>
-                                        
-                                    <button disabled={loader ? true : false}  className='bg-red-800 w-full hover:shadow-red-300/50 hover:shadow-lg text-white rounded-md px-7 py-2 mb-3'>
-                                    {
-                                       loader ? <PropagateLoader color='#fff' cssOverride={overrideStyle} /> : 'Add Category'
-                                    } 
-                                    </button>
+
+                                        <button disabled={loader ? true : false} className='bg-red-800 w-full hover:shadow-red-300/50 hover:shadow-lg text-white rounded-md px-7 py-2 mb-3'>
+                                            {
+                                                loader ? <PropagateLoader color='#fff' cssOverride={overrideStyle} /> : 'Add Category'
+                                            }
+                                        </button>
                                     </div>
 
                                 </div>

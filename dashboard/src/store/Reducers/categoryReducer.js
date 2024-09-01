@@ -19,6 +19,20 @@ export const categoryAdd = createAsyncThunk(
         }
     }
 )
+export const get_category = createAsyncThunk(
+    'category/get_category',
+    async({ parPage,page,searchValue },{rejectWithValue, fulfillWithValue}) => {
+        try {
+             
+            const {data} = await api.get(`/category-get?page=${page}&&searchValue=${searchValue}&&parPage=${parPage}`,{withCredentials: true}) 
+            console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            // console.log(error.response.data)
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
 
   
  
@@ -28,12 +42,14 @@ export const categoryReducer = createSlice({
         successMessage :  '',
         errorMessage : '',
         loader: false,
-        categories : [] 
+        categories : [],
+        totalCategory:0
     },
     reducers : {
 
         messageClear : (state,_) => {
-            state.errorMessage = ""
+           state.errorMessage = ""
+            state.successMessage = ""
         }
 
     },
@@ -44,12 +60,17 @@ export const categoryReducer = createSlice({
         })
         .addCase(categoryAdd.rejected, (state, { payload }) => {
             state.loader = false;
-            state.errorMessage = payload.error
+            state.errorMessage = payload.error;
         }) 
         .addCase(categoryAdd.fulfilled, (state, { payload }) => {
             state.loader = false;
-            state.successMessage = payload.message
-            state.categories =[...state.categories,payload.category]
+            state.successMessage = payload.message;
+            state.categories =[...state.categories,payload.category];
+           
+        })
+        .addCase(get_category.fulfilled, (state, { payload }) => {
+            state.categories =payload.categories;
+            state.totalCategory =payload.totalCategories;
            
         })
  
