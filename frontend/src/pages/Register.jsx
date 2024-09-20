@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { FaFacebookF } from "react-icons/fa6";
 import { FaGoogle } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { customer_register, messageClear } from '../store/Reducers/authReducer';
+import toast from 'react-hot-toast';
+import { FadeLoader } from 'react-spinners';
 
 const Register = () => {
+    const{ loader , errorMessage , successMessage }   = useSelector(state=>state.auth);
+
+
+   const dispatch = useDispatch()
 
     const [state, setState] = useState({
         name: '',
@@ -21,11 +29,31 @@ const Register = () => {
         })
     }
     const register = (e) => {
-        e.prventDefault();
-        console.log(e)
+        e.preventDefault();
+        dispatch(customer_register(state))
+
     }
+    useEffect(()=>{
+        if(successMessage){
+            toast.success(successMessage);
+            dispatch(messageClear())
+        }
+        if(errorMessage){
+            toast.error(errorMessage);
+            dispatch(messageClear())
+        }
+
+    },[successMessage,errorMessage])
+
     return (
-        <div>
+        <div>  
+
+           {
+            loader && <div className='w-screen h-screen flex 
+            justify-center items-center fixd left-0 top-0  bg-[#38303033]'>
+            <FadeLoader/>
+            </div>
+           }
             <Header />
             <div className='bg-slate-200 mt-4'>
                 <div className='w-full justify-center items-center p-10'>
@@ -34,7 +62,7 @@ const Register = () => {
                             <h2 className='text-center w-full text-xl text-slate-600 font-bold'>Register </h2>
 
                             <div>
-                                <form className='text-slate-600' onSubmit={register}>
+                                <form className='text-slate-600' >
                                     <div className='flex flex-col gap-1 mb-2'>
                                         <label htmlFor="name">Name</label>
                                         <input onChange={inputHandler} value={state.name} className='w-full px-3 py-2 border border-slate-200 outline-none focus:border-green-500 rounded-md' type="text" name="name" id="name" placeholder='Name' required />
@@ -51,7 +79,7 @@ const Register = () => {
                                         <input onChange={inputHandler} value={state.password} className='w-full px-3 py-2 border border-slate-200 outline-none focus:border-green-500 rounded-md' type="password" name="password" id="password" placeholder='Password' required />
                                     </div>
 
-                                    <button className='px-8 w-full py-2 bg-[#059473] shadow-lg hover:shadow-green-500/40 text-white rounded-md'>Register</button>
+                                    <button  onClick={register}className='px-8 w-full py-2 bg-[#059473] shadow-lg hover:shadow-green-500/40 text-white rounded-md'>Register</button>
 
                                 </form>
                                 <div className='flex justify-center items-center py-2'>

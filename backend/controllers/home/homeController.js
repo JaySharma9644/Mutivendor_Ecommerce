@@ -65,9 +65,10 @@ class homeController {
             const products = await productModel.find({}).limit(9).sort({ createdAt: -1 });
             const latest_products = this.formateProduct(products);
             const getForPrice = await productModel.find({}).limit(9).sort({ price: 1 });
+           
             if (getForPrice.length > 0) {
-                priceRange.high = getForPrice[getForPrice.length - 1];
-                priceRange.low = getForPrice[0];
+                priceRange.high = getForPrice[getForPrice.length - 1]?.price;
+                priceRange.low = getForPrice[0]?.price;
 
             }
 
@@ -82,18 +83,22 @@ class homeController {
     query_products = async (req, res) => {
         const perPage = 12;
         req.query.perPage = perPage;
-        
+
         try {
             const products = await productModel.find({}).sort({
                 createdAt: -1
             })
-            const totalProducts = new queryProducts(products, req.query).categoryQuery().ratingQuery().priceQuery().sortByPrice().countProducts();
-            const result = new queryProducts(products, req.query).categoryQuery().ratingQuery().priceQuery().sortByPrice().limit().skip().getProducts();
+            const totalProducts = new queryProducts(products, req.query).categoryQuery().ratingQuery().searchQuery().priceQuery().sortByPrice().countProducts();
+          
+            const result = new queryProducts(products, req.query).categoryQuery().ratingQuery().priceQuery().searchQuery().sortByPrice().limit().skip().getProducts();
+           
             responseReturn(res, 200, { products: result, totalProduct: totalProducts, perPage })
         } catch (error) {
             console.log(error.message)
         }
     }
+
+    
 
 }
 module.exports = new homeController();

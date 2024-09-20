@@ -16,9 +16,18 @@ class queryProducts {
 
         return this;
     }
+    
+    searchQuery = () => {
+        this.products = this.query.searchValue ? this.products.filter(p => p.name.toUpperCase().indexOf(this.query.searchValue.toUpperCase()) > -1  ) : this.products
+        return this;
+    }
+
 
     priceQuery = () => {
-        this.products = this.products.filter(p => p.price >= this.query.lowPrice && p.price <= this.query.highPrice);
+        if(this.query.lowPrice>=0  && this.query.highPrice>0){
+            this.products = this.products.filter(p => p.price >= this.query.lowPrice && p.price <= this.query.highPrice);
+        }
+      
 
         return this;
     }
@@ -61,6 +70,10 @@ class queryProducts {
         return this;
     }
 
+    searchProducts =()=>{
+
+    }
+
     getProducts = () => {
         return this.products;
     }
@@ -68,6 +81,8 @@ class queryProducts {
     countProducts = () => {
         return this.products.length;
     }
+
+    
 
 
 }
