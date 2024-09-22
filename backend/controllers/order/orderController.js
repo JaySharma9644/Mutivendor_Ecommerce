@@ -2,10 +2,10 @@ const moment = require('moment');
 
 const { responseReturn } = require('../../utils/response');
 
-const bcrypt = require('bcrypt');
 const customerOrderModel = require('../../models/customerOrderModel');
 const authOrderModel = require('../../models/authOrderModel');
 const cartModel = require('../../models/cartModel');
+const { mongo: { ObjectId } } = require("mongoose");
 
 
 class orderController {
@@ -19,7 +19,7 @@ class orderController {
                 })
                 await authOrderModel.updateMany({
                     orderId: id
-                },{
+                }, {
                     delivery_status: 'cancelled'
                 })
             }
@@ -109,6 +109,82 @@ class orderController {
         }
 
 
+    }
+    get_customer_dashboard_data = async (req, res) => {
+        const { userId } = req.params;
+        try {
+            const recentOrders = await customerOrderModel.find({
+                customerId: new ObjectId(userId)
+            }).limit(5);
+
+            const pendingOrders = await customerOrderModel.find({
+                customerId: new ObjectId(userId), delivery_status: 'pending'
+            }).countDocuments();
+
+            const totalOrders = await customerOrderModel.find({
+                customerId: new ObjectId(userId)
+            }).countDocuments();
+
+            const cancelledOrders = await customerOrderModel.find({
+                customerId: new ObjectId(userId), delivery_status: 'cancelled'
+            }).countDocuments();
+
+
+            responseReturn(res, 200, {
+                recentOrders,
+                pendingOrders,
+                totalOrders,
+                cancelledOrders
+
+            })
+
+        } catch (err) {
+            console.log(err.message)
+        }
+
+
+    }
+
+    get_orders = async (req, res) => {
+
+        const { customerId, status } = req.params;
+        try {
+            let orders = [];
+            if (status !== 'all') {
+                orders = await customerOrderModel.find({
+                    customerId: new ObjectId(customerId),
+                    delivery_status: status
+                })
+            } else {
+                orders = await customerOrderModel.find({
+                    customerId: new ObjectId(customerId)
+                })
+            }
+
+            responseReturn(res, 200, {
+                orders
+            })
+
+        } catch (error) {
+            console.log(error.message)
+        }
+
+
+    }
+
+    get_order_details = async (req, res) =>{
+        const { orderId} = req.params; 
+        let order ;
+        try{
+            order = await customerOrderModel.findById(orderId);
+            
+            responseReturn(res, 200, {
+                order
+            })
+            
+        }catch(error){
+            console.log(error.message)
+        }
     }
 
 

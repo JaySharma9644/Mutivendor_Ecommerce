@@ -58,6 +58,46 @@ export const query_products = createAsyncThunk(
         }
     }
 )
+export const product_details = createAsyncThunk(
+    'product/product_details',
+    async (slug, { rejectWithValue, fulfillWithValue }) => {
+        try {
+
+            const { data } = await api.get(`/home/product-details/${slug}`)
+            console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            // console.log(error.response.data)
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+
+export const customer_review = createAsyncThunk(
+    'review/customer_review',
+    async(info, { fulfillWithValue }) => {
+        try {
+            const {data} = await api.post('/home/customer/submit-review',info)
+            //  console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            console.log(error.respone)
+        }
+    }
+)
+
+export const get_reviews = createAsyncThunk(
+    'review/get_reviews',
+    async({productId,pageNo}, { fulfillWithValue }) => {
+        try {
+            const {data} = await api.get(`/home/customer/get-reviews/${productId}?pageNo=${pageNo}`)
+            //  console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            console.log(error.respone)
+        }
+    }
+)
 export const homeReducer = createSlice({
     name: 'home',
     initialState: {
@@ -74,10 +114,19 @@ export const homeReducer = createSlice({
         priceRange:{
             low:0,
             high:2000
-        }
+        },
+        product:{},
+        relatedProducts:[],
+        moreProducts:[],
+        totalReview:0,
+        rating_review:[],
+        reviews:[]
     },
     reducers: {
-
+        messageClear: (state, _) => {
+            state.errorMessage = "";
+            state.successMessage = "";
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -124,10 +173,39 @@ export const homeReducer = createSlice({
                 state.totalProduct =payload.totalProduct;
         
             })
+
+            .addCase(product_details.rejected, (state, { payload }) => {
+                state.loader = true;
+                state.errorMessage=payload.error;
+
+            })
+            .addCase(product_details.fulfilled, (state, { payload }) => {
+                state.loader = false;
+                state.product=payload.product;
+                state.relatedProducts=payload.relatedProducts;
+                state.moreProducts=payload.moreProducts;
+        
+            })
+            .addCase(customer_review.fulfilled, (state, { payload }) => {
+                state.loader = false;
+                state.successMessage=payload.message;
+               
+            })
+            .addCase(get_reviews.fulfilled, (state, { payload }) => {
+                state.loader = false;
+                state.totalReview =payload.totalReview;
+                state.rating_review =payload.rating_review;
+                state.reviews =payload.reviews;
+
+
+              
+        
+            })
     }
 })
 
 
 
+export const {messageClear} = homeReducer.actions;
 
 export default homeReducer.reducer;

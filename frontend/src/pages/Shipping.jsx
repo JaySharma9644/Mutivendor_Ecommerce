@@ -48,17 +48,8 @@ const Shipping = () => {
         shippingInfo:state,
         userId:userInfo.id,
         navigate
-
-
        }))
     }
-    useEffect(() => {
-        if (successMessage) {
-            toast.success(successMessage);
-            dispatch(messageClear());
-        }
-
-    }, [successMessage])
 
     return (
         <div>

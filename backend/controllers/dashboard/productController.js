@@ -166,6 +166,5 @@ class productController {
 
     }
 
-
 }
 module.exports = new productController();

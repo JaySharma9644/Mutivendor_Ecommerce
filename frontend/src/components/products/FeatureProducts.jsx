@@ -4,7 +4,7 @@ import { RiShoppingCartLine } from "react-icons/ri";
 import Rating from '../Rating';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { add_to_cart,messageClear } from '../../store/Reducers/cartReducer';
+import { add_to_cart,add_to_wishlist,messageClear } from '../../store/Reducers/cartReducer';
 import toast from 'react-hot-toast';
 
 
@@ -14,7 +14,7 @@ const FeatureProducts = ({products}) => {
     const { userInfo} = useSelector(state => state.auth);
     const { successMessage,errorMessage} = useSelector(state => state.cart);
 
-    
+   
 
     const add_cart =(id) =>{
      if(userInfo){
@@ -39,6 +39,20 @@ const FeatureProducts = ({products}) => {
         }
 
     },[successMessage,errorMessage])
+
+
+    const add_wishlist = (pro) => {
+        dispatch(add_to_wishlist({
+            userId: userInfo.id,
+            productId: pro._id,
+            name: pro.name,
+            price: pro.price,
+            image: pro.images[0],
+            discount: pro.discount,
+            rating: pro.rating,
+            slug: pro.slug
+        }))
+    }
     return (
         <div className='w-[85%] flex flex-wrap mx-auto'>
             <div className='w-full'>
@@ -60,7 +74,7 @@ const FeatureProducts = ({products}) => {
         <img className='sm:w-full w-full h-[240px]' src={p.images[0]} alt="" />  
 
         <ul className='flex transition-all duration-700 -bottom-10 justify-center items-center gap-2 absolute w-full group-hover:bottom-3'>
-            <li className='w-[38px] h-[38px] cursor-pointer bg-white flex justify-center items-center rounded-full hover:bg-[#059473] hover:text-white hover:rotate-[720deg] transition-all'>
+            <li  onClick={() => add_wishlist(p)}   className='w-[38px] h-[38px] cursor-pointer bg-white flex justify-center items-center rounded-full hover:bg-[#059473] hover:text-white hover:rotate-[720deg] transition-all'>
             <FaRegHeart />
             </li>
             <li className='w-[38px] h-[38px] cursor-pointer bg-white flex justify-center items-center rounded-full hover:bg-[#059473] hover:text-white hover:rotate-[720deg] transition-all'>

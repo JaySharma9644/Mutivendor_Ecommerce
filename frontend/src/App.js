@@ -10,6 +10,14 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import CategoryShop from './pages/CategoryShop';
 import SearchProducts from './pages/SearchProducts';
+import Payment from './pages/Payment';
+import Dashboard from './pages/Dashboard';
+import ProtectUser from './utils/ProtectUser';
+import Orders from './components/dashboard/Orders';
+import ChangePassword from './components/dashboard/changePassword';
+import Wishlist from './components/dashboard/wishlist';
+import Index from './components/dashboard/index';
+import OrderDetails from './components/dashboard/orderDetails';
 
 function App() {
   return (
@@ -24,6 +32,17 @@ function App() {
     <Route path='/login' element={<Login/>} /> 
     <Route path='/products?' element={<CategoryShop/>} /> 
     <Route path='/products/search?' element={<SearchProducts/>} /> 
+    <Route path='/payment' element={<Payment/>} /> 
+    <Route path='/dashboard' element={<ProtectUser/>} >
+      <Route path='' element={<Dashboard/>} >
+      <Route path='' element={<Index/>} />
+      <Route path='my-orders' element={<Orders/>} /> 
+      <Route path='change-password' element={<ChangePassword/>} /> 
+      <Route path='my-Wishlist' element={<Wishlist/>} /> 
+      <Route path='order/details/:orderId' element={<OrderDetails/>} /> 
+
+       </Route> 
+      </Route>
 
 
 
