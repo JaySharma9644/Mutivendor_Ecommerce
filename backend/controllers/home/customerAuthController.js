@@ -79,6 +79,13 @@ class custometAuthController {
             responseReturn(res, 500, { error: "Server Error Try Again!" })
         }
     }
+
+    customer_logout = async (req,res) =>{
+        res.cookie('customerToken',"",{
+            expires: new Date(Date.now())
+        })
+        responseReturn(res, 200, { message: "Logout Success" })
+    }
     
 
 }

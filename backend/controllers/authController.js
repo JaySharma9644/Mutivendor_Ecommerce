@@ -46,6 +46,39 @@ class authControllers {
 
 
     }
+
+    admin_register = async (req, res) => {
+        const { email, name, password } = req.body;
+       
+
+        try {
+            const getUser = await adminModel.findOne({ email });
+            if (getUser) {
+                responseReturn(res, 404, { error: 'Email Already Exit' })
+            } else {
+                const admin = await adminModel.create({
+                    name,
+                    email,
+                    password: await bcrypt.hash(password, 10),
+                    image:'http://res.cloudinary.com/dqnzypoze/image/upload/v1722920427/categories/lz7ri6onu1bmmwqxw32i.jpg'
+                })
+               
+                const token = await createToken({
+                    id: admin.id,
+                    role: admin.role
+
+                })
+                res.cookie('accessToken', token, {
+                    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                })
+                responseReturn(res, 201, { token,message: 'Register Success' })
+            }
+        } catch (err) {
+            
+            responseReturn(res, 500, {error: err })
+        }
+        
+    }
     // End Method
 
     getUser = async (req, res) => {

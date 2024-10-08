@@ -21,9 +21,9 @@ const adminSchema = new Schema({
     },
     role:{
         type:String,
-        required:true
+        default:'admin'
     }
 
 })
 
-module.exports =model('admins',adminSchema);
+module.exports = model('admins',adminSchema);

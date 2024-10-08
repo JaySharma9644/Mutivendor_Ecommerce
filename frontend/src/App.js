@@ -18,6 +18,7 @@ import ChangePassword from './components/dashboard/changePassword';
 import Wishlist from './components/dashboard/wishlist';
 import Index from './components/dashboard/index';
 import OrderDetails from './components/dashboard/orderDetails';
+import Chat from './components/dashboard/chat';
 
 function App() {
   return (
@@ -40,7 +41,8 @@ function App() {
       <Route path='change-password' element={<ChangePassword/>} /> 
       <Route path='my-Wishlist' element={<Wishlist/>} /> 
       <Route path='order/details/:orderId' element={<OrderDetails/>} /> 
-
+      <Route path='chat' element={<Chat/>} /> 
+      <Route path='chat/:sellerId' element={<Chat/>} /> 
        </Route> 
       </Route>
 

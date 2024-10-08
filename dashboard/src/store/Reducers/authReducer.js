@@ -92,6 +92,22 @@ export const profile_info_add = createAsyncThunk(
     }
 )
 
+export const admin_register  = createAsyncThunk(
+    'auth/admin_register',
+    async(info,{rejectWithValue, fulfillWithValue}) => { 
+        try {
+            console.log(info)
+            const {data} = await api.post('/admin-register',info,{withCredentials: true})
+            localStorage.setItem('accessToken',data.token)
+             console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            console.log(error.response.data)
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+
 const returnRole =(token)=>{
     if(token){
      const decodeToken =jwtDecode(token);
@@ -190,6 +206,22 @@ export const authReducer = createSlice({
             state.loader =false;
             state.successMessage=payload.message;
             state.userInfo=payload.userInfo;
+        })
+        
+
+        builder.addCase(admin_register.pending,(state,{payload})=>{
+            state.loader =true;
+        })
+        builder.addCase(admin_register.rejected,(state,{payload})=>{
+            state.loader =false;
+            state.errorMessage=payload.error
+        })
+
+        builder.addCase(admin_register.fulfilled,(state,{payload})=>{
+            state.loader =false;
+            state.successMessage=payload.message;
+            state.token =payload.token;
+            state.role =returnRole(payload.token)
         })
     }
 })

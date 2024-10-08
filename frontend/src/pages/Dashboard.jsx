@@ -2,17 +2,41 @@ import React, { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { FaList } from 'react-icons/fa';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { IoIosHome } from "react-icons/io";
 import { FaBorderAll } from "react-icons/fa6";
 import { FaHeart } from "react-icons/fa";
 import { IoChatbubbleEllipsesSharp } from "react-icons/io5";
 import { IoMdLogOut } from "react-icons/io";
 import { RiLockPasswordLine } from "react-icons/ri";
+import api from '../api/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { user_reset} from '../store/Reducers/authReducer';
+import { reset_count } from '../store/Reducers/cartReducer';
+import toast from 'react-hot-toast';
 
 
 const Dashboard = () => {
-    const [filterShow, setFilterShow] =  useState(false)
+    const navigate  = useNavigate();
+    const dispatch = useDispatch();
+    const [filterShow, setFilterShow] =  useState(false);
+    const { userInfo } = useSelector(state => state.auth);
+    const logout = async () =>{
+
+        try {
+            const { data } = await api.get('/customer/logout');
+
+             if(data.message){
+                toast.success(data.message)
+             }
+            localStorage.removeItem('customerToken');
+            dispatch(user_reset())
+            dispatch(reset_count())
+            navigate('/login')
+        } catch(error) {
+            console.log(error.response.data);   
+        }
+    }
 
     return (
         <div>
@@ -42,9 +66,9 @@ const Dashboard = () => {
             <span className='text-xl'><FaHeart/></span>
             <Link to='/dashboard/my-wishlist' className='block' >Wishlist </Link>
                 </li>
-                <li className='flex justify-start items-center gap-2 py-2'>
+                <li  to={'/dashboard/chat/'} className='flex justify-start items-center gap-2 py-2'>
             <span className='text-xl'><IoChatbubbleEllipsesSharp/></span>
-            <Link to='/dashboard' className='block' >Chat  </Link>
+            <Link to='/dashboard/chat' className='block' >Chat  </Link>
                 </li>
                 <li className='flex justify-start items-center gap-2 py-2'>
             <span className='text-xl'><RiLockPasswordLine/></span>
@@ -52,7 +76,7 @@ const Dashboard = () => {
                 </li>
                 <li className='flex justify-start items-center gap-2 py-2'>
             <span className='text-xl'><IoMdLogOut/></span>
-            <Link to='/dashboard' className='block' >Logout </Link>
+            <Link onClick={(e) =>logout()} className='block' >Logout </Link>
                 </li> 
 
             </ul> 

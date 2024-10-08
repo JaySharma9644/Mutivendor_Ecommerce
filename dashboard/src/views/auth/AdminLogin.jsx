@@ -70,7 +70,7 @@ const AdminLogin = () => {
                         {
                             loader ? <PropagateLoader  color='white'   cssOverride={overrideStyle}/> :'Sign In '
                         }</button>
-                        <div className='flex items-center mb-3 gap-3 justify-center'><p>Don't  Have An Account ? <Link className='font-bold' to='/register'>Sign Up</Link></p> </div>
+                        <div className='flex items-center mb-3 gap-3 justify-center'><p>Don't  Have An Account ? <Link className='font-bold' to='/admin/register'>Sign Up</Link></p> </div>
 
                     </form>
                 </div>
