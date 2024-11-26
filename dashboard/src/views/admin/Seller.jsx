@@ -20,7 +20,7 @@ const Sellers = () => {
             searchValue
         }
         dispatch(get_active_sellers(obj))
-    }, [])
+    },  [searchValue,parPage,currentPage])
 
     return (
         <div className='px-2 lg:px-7 pt-5'>
@@ -70,7 +70,7 @@ const Sellers = () => {
                  
                 <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
                     <div className='flex justify-start items-center gap-4'>
-                    <Link  to ={`admin/dashboard/seller/details/${seller?._id}`} className='p-[6px] bg-green-500 rounded hover:shadow-lg hover:shadow-green-500/50'> <FaEye /> </Link> 
+                    <Link  to ={`/admin/dashboard/seller/details/${seller?._id}`} className='p-[6px] bg-green-500 rounded hover:shadow-lg hover:shadow-green-500/50'> <FaEye /> </Link> 
                     
                     </div>
                     

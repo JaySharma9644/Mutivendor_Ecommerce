@@ -102,6 +102,44 @@ class sellerController {
         }
 
     }
+    get_deactive_sellers = async (req, res) => {
+    
+        const { page, searchValue, parPage } = req.query;
+
+        try{
+            let skipPage = ''
+            if (parPage && page) {
+                skipPage = parseInt(parPage) * (parseInt(page) - 1)
+            }
+            if (searchValue && page && parPage) {
+                const sellers = await sellerModel.find({
+                    $text: { $search: searchValue },
+                    status:'deactive'
+                }).skip(skipPage).limit(parPage).sort({ createdAt: -1 })
+
+                const totalSellers = await sellerModel.find({
+                    $text: { $search: searchValue },
+                    status:'deactive'
+                }).countDocuments()
+                responseReturn(res, 200, { sellers, totalSellers })
+            } else if (searchValue === '' && page && parPage) {
+
+                const sellers = await sellerModel.find({status:'deactive'}).skip(skipPage).limit(parPage).sort({ createdAt: -1 })
+
+                const totalSellers = await sellerModel.find({status:'deactive'}).countDocuments()
+                responseReturn(res, 200, { sellers, totalSellers })
+            } else {
+                const sellers = await sellerModel.find({status:'deactive'}).sort({ createdAt: -1 })
+                const totalSellers = await sellerModel.find({status:'deactive'}).countDocuments()
+                responseReturn(res, 200, { sellers, totalSellers})
+
+            }
+
+        }catch{
+            responseReturn(res, 500, { error: error.message });
+        }
+
+    }
 
 
 

@@ -1,14 +1,30 @@
-import React, { useState } from 'react'; 
+import React, { useEffect, useState } from 'react'; 
 import Search from '../components/Search';
 import { Link } from 'react-router-dom';
 import Pagination from '../Pagination'; 
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa'; 
+import { useDispatch, useSelector } from 'react-redux';
+import { get_seller_orders } from '../../store/Reducers/orderReducer';
 
 const Orders = () => {
+    const dispatch = useDispatch();
+
 
     const [currentPage, setCurrentPage] = useState(1)
     const [searchValue, setSearchValue] = useState('')
     const [parPage, setParPage] = useState(5)
+    const { userInfo } = useSelector(state => state.auth);
+    const { orders, totalOrders } = useSelector(state => state.order);
+
+      useEffect(() => {
+        const obj = {
+            parPage: parseInt(parPage),
+            page: parseInt(currentPage),
+            searchValue,
+            sellerId :userInfo?._id
+        }
+        dispatch(get_seller_orders(obj))
+    }, [searchValue, parPage, currentPage])
 
     return (
         <div className='px-2 lg:px-7 pt-5'>
@@ -33,16 +49,16 @@ const Orders = () => {
 
         <tbody>
             {
-                [1,2,3,4,5].map((d, i) => <tr key={i}>
+                orders?.map((Order, i) => <tr key={i}>
                  
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>#5455</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>$455</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>pending </td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>pending</td> 
+                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>#{Order._id}</td>
+                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>${Order.price}</td>
+                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{Order.payment_status} </td>
+                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{Order.delivery_status}</td> 
                 <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
                     <div className='flex justify-start items-center gap-4'>
                    
-                    <Link to={`/seller/dashboard/order/details/34`} className='p-[6px] bg-green-500 rounded hover:shadow-lg hover:shadow-green-500/50'> <FaEye/> </Link>
+                    <Link to={`/seller/dashboard/order/details/${Order._id}`} className='p-[6px] bg-green-500 rounded hover:shadow-lg hover:shadow-green-500/50'> <FaEye/> </Link>
                    
                     </div>
                     

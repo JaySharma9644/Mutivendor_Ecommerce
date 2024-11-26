@@ -172,19 +172,230 @@ class orderController {
 
     }
 
-    get_order_details = async (req, res) =>{
-        const { orderId} = req.params; 
-        let order ;
-        try{
+    get_order_details = async (req, res) => {
+        const { orderId } = req.params;
+        let order;
+        try {
             order = await customerOrderModel.findById(orderId);
-            
+
             responseReturn(res, 200, {
                 order
             })
-            
-        }catch(error){
+
+        } catch (error) {
             console.log(error.message)
         }
+    }
+    get_admin_orders = async (req, res) => {
+        const { page, searchValue, parPage } = req.query;
+
+        try {
+            let skipPage = ''
+            if (parPage && page) {
+                skipPage = parseInt(parPage) * (parseInt(page) - 1)
+            }
+
+
+            if (searchValue && page && parPage) {
+                const orders = await customerOrderModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "authororders",
+                            localField: "_id",
+                            foreignField: "orderId",
+                            as: "suborders"
+
+                        }
+                    }
+
+                ]).skip(skipPage).limit(parseInt(parPage)).sort({ createdAt: -1 })
+
+                const totalOrders = await customerOrderModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "authororders",
+                            localField: "_id",
+                            foreignField: "orderId",
+                            as: "suborders"
+
+                        }
+                    }
+
+                ])
+                responseReturn(res, 200, { orders, totalOrders: totalOrders?.length })
+            } else if (searchValue === '' && page && parPage) {
+
+                const orders = await customerOrderModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "authororders",
+                            localField: "_id",
+                            foreignField: "orderId",
+                            as: "suborders"
+
+                        }
+                    }
+
+                ]).skip(skipPage).limit(parseInt(parPage)).sort({ createdAt: -1 })
+
+                const totalOrders = await customerOrderModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "authororders",
+                            localField: "_id",
+                            foreignField: "orderId",
+                            as: "suborders"
+
+                        }
+                    }
+
+                ])
+                responseReturn(res, 200, { orders, totalOrders: totalOrders?.length })
+            } else {
+                const orders = await customerOrderModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "authororders",
+                            localField: "_id",
+                            foreignField: "orderId",
+                            as: "suborders"
+
+                        }
+                    }
+
+                ]).sort({ createdAt: -1 })
+                const totalOrders = await customerOrderModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "authororders",
+                            localField: "_id",
+                            foreignField: "orderId",
+                            as: "suborders"
+
+                        }
+                    }
+
+                ])
+                responseReturn(res, 200, { orders, orders, totalOrders: totalOrders?.length })
+
+            }
+
+        } catch (error) {
+            responseReturn(res, 500, { error: error.message });
+        }
+    }
+
+    get_admin_order_details = async (req, res) => {
+        const { orderId } = req.params;
+        let order;
+        try {
+            order = await customerOrderModel.aggregate([
+                {
+                    $match: { _id: new ObjectId(orderId) }
+                }, {
+                    $lookup: {
+                        from: "authororders",
+                        localField: "_id",
+                        foreignField: "orderId",
+                        as: "suborders"
+
+                    }
+                }
+            ])
+
+            responseReturn(res, 200, {
+                order:order[0]
+            })
+
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+    admin_order_status_update = async (req, res) => { 
+        const { orderId } = req.params;
+        const { status } = req.body;
+        try {
+         
+            await customerOrderModel.findByIdAndUpdate(orderId,{delivery_status:status});
+            responseReturn(res, 200, {
+                message:'Order Status Changed Succesfully'
+            })
+
+        }catch (error) {
+            console.log(error.message)
+        }
+
+    }
+    get_seller_orders = async (req,res) =>{
+        const {sellerId} = req.params
+        let {page,searchValue,parPage} = req.query
+        page = parseInt(page)
+        parPage= parseInt(parPage)
+
+        const skipPage = parPage * (page - 1)
+
+        try {
+            if (searchValue && page && parPage) {
+                const orders = await authOrderModel.find({
+                    sellerId,
+                }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+                const totalOrder = await authOrderModel.find({
+                    sellerId
+                }).countDocuments()
+                responseReturn(res,200, {orders,totalOrder})
+            } if(searchValue === '' && page && parPage){
+
+                const orders = await authOrderModel.find({
+                    sellerId,
+                }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+
+                const totalOrder = await authOrderModel.find({
+                    sellerId
+                }).countDocuments()
+                responseReturn(res,200, {orders,totalOrder})
+
+            }else {
+                const orders = await authOrderModel.find({
+                    sellerId,
+                })
+                const totalOrder = await authOrderModel.find({
+                    sellerId
+                }).countDocuments()
+                responseReturn(res,200, {orders,totalOrder})
+            }
+            
+        } catch (error) {
+         console.log('get seller Order error' + error.message)
+         responseReturn(res,500, {message: 'internal server error'})
+        }
+        
+
+        
+    }
+    get_seller_orders_details = async (req, res) => {
+        const { orderId } = req.params
+    
+        try {
+            const order = await authOrderModel.findById(orderId)
+            responseReturn(res, 200, { order })
+        } catch (error) {
+            console.log('get seller details error' + error.message)
+        }
+    }
+    seller_order_status_update = async (req, res) => { 
+        const { orderId } = req.params;
+        const { status } = req.body;
+        try {
+         
+            await authOrderModel.findByIdAndUpdate(orderId,{delivery_status:status});
+            responseReturn(res, 200, {
+                message:'Order Status Changed Succesfully'
+            })
+
+        }catch (error) {
+            console.log(error.message)
+        }
+
     }
 
 
