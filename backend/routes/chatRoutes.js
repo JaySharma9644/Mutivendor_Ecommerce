@@ -8,6 +8,7 @@ router.get('/chat/seller/get-customers/:sellerId',chatController.get_customers)
 router.get('/chat/seller/get-customer-message/:customerId',authMiddleware,chatController.get_customer_message)
 router.post('/chat/seller/send-message-to-customer',authMiddleware,chatController.add_seller_message)
 router.get('/chat/admin/get-sellers',authMiddleware,chatController.get_sellers)
-
-
+router.post('/chat/message-send-seller-admin',authMiddleware,chatController.add_seller_admin_message);
+router.get('/chat/get_admin_messages/:receiverId',authMiddleware,chatController.get_admin_messages);
+router.get('/chat/get_seller_messages',authMiddleware,chatController.get_seller_message);
 module.exports = router;

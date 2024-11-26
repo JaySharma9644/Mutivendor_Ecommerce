@@ -124,6 +124,27 @@ const returnRole =(token)=>{
     }
 
 }
+
+export const logout = createAsyncThunk(
+    'auth/logout',
+    async ({navigate,role},{rejectWithValue,fulfillWithValue}) => {
+      
+        try {
+            const {data} = await api.get('/logout', {withCredentials: true}) 
+
+                localStorage.removeItem('accessToken');
+                if(role==='admin'){
+                    navigate('/admin/login')
+                }else{
+                    navigate('/login')
+                }
+                return fulfillWithValue(data);
+           
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+)
 export const authReducer = createSlice({
     name: 'auth',
     initialState: {
@@ -222,6 +243,9 @@ export const authReducer = createSlice({
             state.successMessage=payload.message;
             state.token =payload.token;
             state.role =returnRole(payload.token)
+        })
+        builder.addCase(logout.fulfilled,(state,{payload})=>{
+            state.successMessage=payload.message;
         })
     }
 })

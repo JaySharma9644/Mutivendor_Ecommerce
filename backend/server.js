@@ -48,6 +48,7 @@ const addSeller = (sellerId,socketId,userInfo) =>{
    
 
 }
+var admin;
 
 const findCustomer = (customerId) =>{
     return allCustomer.find(customer =>customer.customerId==customerId);
@@ -85,22 +86,36 @@ io.on('connection',(soc)=>{
 
     soc.on('send_customer_message',(msg)=>{
         const seller = findSeller(msg?.receiverId);
-        consol.log(seller)
+        // consol.log(seller)
         if(seller!==undefined){
          soc.to(seller.socketId).emit('customer_message',msg)
         }
         
      })
-
-
+     soc.on('send_message_admin_to_seller',(msg)=>{
+        const seller = findSeller(msg?.receiverId);
+        // consol.log(seller)
+        if(seller!==undefined){
+         soc.to(seller.socketId).emit('received_admin_message',msg)
+        }
+        
+     })
+     
+     soc.on('send_message_seller_to_admin',(msg)=>{
+       
+        if(admin && admin.socketId){
+         soc.to(admin.socketId).emit('received_seller_message',msg)
+        }
+        
+     })
+     
      
     soc.on('add_admin',(adminInfo)=>{
         delete adminInfo.email;
         delete adminInfo.password;
-        let admin = adminInfo;
-        admin.socketId =soc.id;
-        console.log(" on admin add ",allSellers);
-        io.emit('activeSeller',allSellers)
+         admin = adminInfo;
+         admin.socketId =soc.id;
+       
     })
 
 
