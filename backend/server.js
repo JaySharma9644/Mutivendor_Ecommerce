@@ -145,6 +145,9 @@ app.use('/api',require('./routes/home/customerAuthRoutes'))
 app.use('/api',require('./routes/home/cartRoutes'))
 app.use('/api',require('./routes/order/orderRoutes'))
 app.use('/api',require('./routes/chatRoutes'))
+app.use('/api',require('./routes/paymentRoute'))
+app.use('/api',require('./routes/dashboard/dashboardRoutes'))
+
 
 
 

@@ -5,7 +5,11 @@ const { responseReturn } = require('../../utils/response');
 const customerOrderModel = require('../../models/customerOrderModel');
 const authOrderModel = require('../../models/authOrderModel');
 const cartModel = require('../../models/cartModel');
+const myShopWallet = require('../../models/myShopWalletModel');
+const sellerWallet = require('../../models/sellerWallet');
+
 const { mongo: { ObjectId } } = require("mongoose");
+const stripe = require('stripe')('sk_test_51QQ1OeBI0RzXsuRVkR41OvuP791GB9XvDJIy9etgu98TcHAAwDYoREM18yr7YD1awSbC7eG8VA2BIZpPinhaxnpM00m3Miyt6Y')
 
 
 class orderController {
@@ -304,33 +308,33 @@ class orderController {
             ])
 
             responseReturn(res, 200, {
-                order:order[0]
+                order: order[0]
             })
 
         } catch (error) {
             console.log(error.message)
         }
     }
-    admin_order_status_update = async (req, res) => { 
+    admin_order_status_update = async (req, res) => {
         const { orderId } = req.params;
         const { status } = req.body;
         try {
-         
-            await customerOrderModel.findByIdAndUpdate(orderId,{delivery_status:status});
+
+            await customerOrderModel.findByIdAndUpdate(orderId, { delivery_status: status });
             responseReturn(res, 200, {
-                message:'Order Status Changed Succesfully'
+                message: 'Order Status Changed Succesfully'
             })
 
-        }catch (error) {
+        } catch (error) {
             console.log(error.message)
         }
 
     }
-    get_seller_orders = async (req,res) =>{
-        const {sellerId} = req.params
-        let {page,searchValue,parPage} = req.query
+    get_seller_orders = async (req, res) => {
+        const { sellerId } = req.params
+        let { page, searchValue, parPage } = req.query
         page = parseInt(page)
-        parPage= parseInt(parPage)
+        parPage = parseInt(parPage)
 
         const skipPage = parPage * (page - 1)
 
@@ -338,43 +342,43 @@ class orderController {
             if (searchValue && page && parPage) {
                 const orders = await authOrderModel.find({
                     sellerId,
-                }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+                }).skip(skipPage).limit(parPage).sort({ createdAt: -1 })
                 const totalOrder = await authOrderModel.find({
                     sellerId
                 }).countDocuments()
-                responseReturn(res,200, {orders,totalOrder})
-            } if(searchValue === '' && page && parPage){
+                responseReturn(res, 200, { orders, totalOrder })
+            } if (searchValue === '' && page && parPage) {
 
                 const orders = await authOrderModel.find({
                     sellerId,
-                }).skip(skipPage).limit(parPage).sort({ createdAt: -1})
+                }).skip(skipPage).limit(parPage).sort({ createdAt: -1 })
 
                 const totalOrder = await authOrderModel.find({
                     sellerId
                 }).countDocuments()
-                responseReturn(res,200, {orders,totalOrder})
+                responseReturn(res, 200, { orders, totalOrder })
 
-            }else {
+            } else {
                 const orders = await authOrderModel.find({
                     sellerId,
                 })
                 const totalOrder = await authOrderModel.find({
                     sellerId
                 }).countDocuments()
-                responseReturn(res,200, {orders,totalOrder})
+                responseReturn(res, 200, { orders, totalOrder })
             }
-            
-        } catch (error) {
-         console.log('get seller Order error' + error.message)
-         responseReturn(res,500, {message: 'internal server error'})
-        }
-        
 
-        
+        } catch (error) {
+            console.log('get seller Order error' + error.message)
+            responseReturn(res, 500, { message: 'internal server error' })
+        }
+
+
+
     }
     get_seller_orders_details = async (req, res) => {
         const { orderId } = req.params
-    
+
         try {
             const order = await authOrderModel.findById(orderId)
             responseReturn(res, 200, { order })
@@ -382,22 +386,75 @@ class orderController {
             console.log('get seller details error' + error.message)
         }
     }
-    seller_order_status_update = async (req, res) => { 
+    seller_order_status_update = async (req, res) => {
         const { orderId } = req.params;
         const { status } = req.body;
         try {
-         
-            await authOrderModel.findByIdAndUpdate(orderId,{delivery_status:status});
+
+            await authOrderModel.findByIdAndUpdate(orderId, { delivery_status: status });
             responseReturn(res, 200, {
-                message:'Order Status Changed Succesfully'
+                message: 'Order Status Changed Succesfully'
             })
 
-        }catch (error) {
+        } catch (error) {
             console.log(error.message)
         }
 
     }
+    create_payment = async (req, res) => {
+        const { price } = req.body
+        try {
+            const payment = await stripe.paymentIntents.create({
+                amount: price * 100,
+                currency: 'usd',
+                automatic_payment_methods: {
+                    enabled: true
+                }
+            })
+            responseReturn(res, 200, { clientSecret: payment.client_secret })
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+    order_confirm = async (req, res) => {
+        const { orderId } = req.params
 
+        try {
+            await customerOrderModel.findByIdAndUpdate(orderId , { payment_status: 'paid' });
 
+            await authOrderModel.updateMany({ orderId: new ObjectId(orderId) }, { payment_status: 'paid', delivery_status: 'pending' });
+
+            const customerOrder = await customerOrderModel.findById(orderId);
+
+            const authOrder = await authOrderModel.find({
+                orderId: new ObjectId(orderId)
+            })
+
+            const time = moment(Date.now()).format('l');
+            const splitTime = time?.split('/');
+
+            await myShopWallet.create({
+                amount: customerOrder?.price,
+                month: splitTime[0],
+                year: splitTime[2]
+            })
+
+            for (let i = 0; i < authOrder?.length; i++) {
+                await sellerWallet.create({
+                    sellerId: authOrder[i]?.sellerId?.toString(),
+                    amount: authOrder[i]?.price,
+                    month: splitTime[0],
+                    year: splitTime[2]
+                })
+            }
+
+            responseReturn(res, 200, { message: 'Success' })
+
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+    // End Method 
+    // End Method 
 }
 module.exports = new orderController(); 

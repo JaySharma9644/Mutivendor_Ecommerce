@@ -13,6 +13,7 @@ import { FaPhoneAlt } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import { useDispatch, useSelector } from 'react-redux';
 import { get_category } from '../store/Reducers/homeReducer';
+import { get_cart_products, get_wishlist_products } from '../store/Reducers/cartReducer';
 
 const Header = () => {
 
@@ -52,6 +53,14 @@ const Header = () => {
             navigate('/login')
         }
     }
+
+    useEffect(()=>{
+        if(userInfo){
+            dispatch(get_cart_products(userInfo._id))
+            dispatch(get_wishlist_products(userInfo._id))
+        }
+
+    },[userInfo])
     return (
         <div className='w-full bg-white'>
             <div className='header-top bg-[#caddff] md-lg:hidden'>

@@ -5,6 +5,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { useDispatch, useSelector } from 'react-redux';
 import {profile_image_upload,messageClear,profile_info_add} from '../../store/Reducers/authReducer';
 import toast from 'react-hot-toast';
+import { create_stripe_connect_account } from '../../store/Reducers/sellerReducer';
 
 const Profile = () => {
     const[state,setState] = useState({
@@ -108,7 +109,7 @@ const Profile = () => {
                                     <span>Payment Account : </span>
                                     <p>
                                         {
-                                            status === 'active' ? <span className='bg-green-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded'>Pending</span> : <span className='bg-blue-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded'>Click Active</span>
+                                            userInfo?.payment === 'active' ? <span className='bg-green-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded'> { userInfo?.payment}</span> : <span className='bg-blue-500 text-white text-xs cursor-pointer font-normal ml-2 px-2 py-0.5 rounded' onClick={()=> dispatch(create_stripe_connect_account())}>Click Active</span>
                                         }
                                     </p>
                                 </div>

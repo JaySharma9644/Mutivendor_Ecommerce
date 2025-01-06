@@ -12,6 +12,7 @@ router.post('/admin/order_status_update/:orderId',orderController.admin_order_st
 router.get('/seller/order/:sellerId',orderController.get_seller_orders);
 router.get('/seller/get-order-details/:orderId',orderController.get_seller_orders_details);
 router.post('/seller/order_status_update/:orderId',orderController.seller_order_status_update);
-
+router.post('/order/create-payment',orderController.create_payment)
+router.get('/order/confirm/:orderId',orderController.order_confirm)
 
 module.exports = router;
